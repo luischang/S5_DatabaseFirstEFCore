@@ -1,0 +1,187 @@
+﻿
+<div class="alert alert-primary" role="alert">
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Mantenimiento de Clientes</h3>
+        </div>
+        <div class="col-md-2">
+            <button id="btnAgregarCliente"
+                    class="btn btn-success">
+                Agregar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalRegistroCliente" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulo">Registro de Cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <input type="text" class="form-control" id="txtNombre" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Apellidos</label>
+                                <input type="text" class="form-control" id="txtApellido" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>País</label>
+                                <input type="text" class="form-control" id="txtPais" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Ciudad</label>
+                                <input type="text" class="form-control" id="txtCiudad" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="text" class="form-control" id="txtTelefono" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarCliente">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hidIDCliente" value="-1" />
+
+<hr />
+
+<div id="divListadoClientes">
+
+
+</div>
+
+
+<script>
+
+    $("#divListadoClientes").on('click', '.btnEditarCliente', function () {
+        let vIdCliente = $(this).attr('data-id');
+        $("#hidIDCliente").val(vIdCliente);
+        let modalRegistro = $("#modalRegistroCliente");      
+
+            $.ajax({
+                type: "GET",
+                url: "Customer/Obtener",
+                cache: false,
+                data: { idCliente: vIdCliente },
+                success: function (objCliente) {
+                    $("#txtNombre").val(objCliente.firstName);
+                    $("#txtApellido").val(objCliente.lastName);
+                    $("#txtPais").val(objCliente.country);
+                    $("#txtCiudad").val(objCliente.city);
+                    $("#txtTelefono").val(objCliente.phone);
+                    modalRegistro.modal();
+                    modalRegistro.find("#titulo".html("Editar Cliente"));
+                }
+            });
+    });
+
+    $("#divListadoClientes").on('click', '.btnEliminarCliente', function () {
+        let vIdCliente = $(this).attr('data-id');
+
+        if (confirm("¿Está seguro de eliminar al cliente?")) {
+
+            $.ajax({
+                type: "POST",
+                url: "Customer/Eliminar",
+                cache: false,
+                data: { idCliente: vIdCliente },
+                success: function (exito) {
+                    if (exito) {
+                        CargarListadoCliente();
+                    } else {
+                        alert("Ocurrió un error al eliminar el cliente....");
+                    }
+                }
+            });
+        }
+
+    });
+
+
+    $("#btnGuardarCliente").click(function () {
+        let vIDCliente = $("#hidIDCliente").val();
+        let vNombre = $("#txtNombre").val();
+        let vApellido = $("#txtApellido").val();
+        //let vDireccion = $("#txtDireccion").val();
+        let vPais = $("#txtPais").val();
+        let vCiudad = $("#txtCiudad").val();
+        let vTelefono = $("#txtTelefono").val();
+
+
+        $.ajax({
+            type: "POST",
+            url: "Customer/Grabar",
+            cache: false,
+            data: {
+                idCliente: vIDCliente,
+                nombre: vNombre,
+                apellido: vApellido,
+                pais: vPais,
+                ciudad: vCiudad,
+                telefono: vTelefono
+            },
+            success: function (exito) {
+                if (exito) {
+                    swal("Se registró correctamente....")
+                    CargarListadoCliente();
+                    $("#modalRegistroCliente").modal("toggle");
+                } else {
+                    swal("Ocurrió un error en la transacción...")
+                }
+            }
+        });
+
+    });
+
+
+
+    CargarListadoCliente();
+
+    function CargarListadoCliente() {
+        $.ajax({
+            type: "GET",
+            url: "Customer/Listado",
+            cache: false,
+            success: function (dataHtml) {
+                $("#divListadoClientes").html(dataHtml);
+            }
+        });
+    }
+
+
+
+    $("#btnAgregarCliente").click(function () {
+        $("#modalRegistroCliente").modal();
+    });
+
+
+</script>

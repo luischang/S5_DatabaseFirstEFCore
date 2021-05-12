@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Customer>
+
+<table id="tbListadoClientes" class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Ciudad</th>
+            <th>Pais</th>
+            <th>Telefono</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.City</td>
+                <td>@item.Country</td>
+                <td>@item.Phone</td>
+                <td>
+                    <button data-id="@item.Id"
+                            class="btnEliminarCliente btn btn-danger">
+                        Eliminar
+                    </button>
+                    <button data-id="@item.Id"
+                            class="btnEditarCliente btn btn-warning">
+                        Editar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+    loadTable();
+    function loadTable() {
+        let table = $("#tbListadoClientes").DataTable({
+            lengthChange: false,
+            buttons: ['copy','excel','pdf','colvis','print']
+        });
+
+        table.buttons().container()
+            .insertBefore("#tbListadoClientes_filter");
+
+    }
+</script>
